@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试脚本</title>
+</head>
+<body>
+    <button id="testBtn">测试按钮</button>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded 触发');
+            const btn = document.getElementById('testBtn');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    alert('按钮点击成功！');
+                });
+                console.log('事件监听器已添加');
+            } else {
+                console.error('未找到按钮');
+            }
+        });
+    </script>
+</body>
+</html>
+

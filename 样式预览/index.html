@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>照片视频共享系统 - 样式预览</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header class="navbar">
+        <div class="container">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>肥肥美美</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#home" class="nav-link active">首页</a>
+                <a href="#timeline" class="nav-link">时间线</a>
+                <a href="#category" class="nav-link">分类</a>
+                <a href="#upload" class="nav-link">上传</a>
+                <a href="#memo" class="nav-link">备忘录</a>
+            </nav>
+            <div class="user-info">
+                <div class="theme-selector" style="margin-right: 16px;">
+                    <button class="theme-btn" id="themeToggle" title="选择主题色">🎨</button>
+                    <div class="theme-options" id="themeOptions" style="display: none;">
+                        <div class="theme-option" data-theme="blue">💙 蓝色</div>
+                        <div class="theme-option" data-theme="purple">💜 紫色</div>
+                        <div class="theme-option" data-theme="pink">💗 粉色</div>
+                        <div class="theme-option" data-theme="green">💚 绿色</div>
+                        <div class="theme-option" data-theme="orange">🧡 橙色</div>
+                    </div>
+                </div>
+                <div id="userNotLoggedIn" style="display: flex; align-items: center; gap: 12px;">
+                    <button class="btn btn-primary" id="loginBtn" style="font-size: 14px; padding: 6px 12px;">登录</button>
+                </div>
+                <div id="userLoggedIn" style="display: none; align-items: center; gap: 12px;">
+                    <div class="avatar">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop" alt="用户头像">
+                    </div>
+                    <span class="username" id="currentUsername">肥肥</span>
+                    <button class="btn btn-secondary" id="logoutBtn" style="font-size: 14px; padding: 6px 12px;">退出</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主页 -->
+    <section id="home" class="home-section">
+        <div class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">肥肥美美的美好时光</h1>
+                <p class="hero-subtitle">一起上传照片和视频，珍藏每一个珍贵的瞬间</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="statPhotos">0</div>
+                        <div class="stat-label">照片</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="statVideos">0</div>
+                        <div class="stat-label">视频</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="statCategories">0</div>
+                        <div class="stat-label">分类</div>
+                    </div>
+                </div>
+                <div class="hero-actions">
+                    <a href="#upload" class="btn btn-primary">上传照片</a>
+                    <a href="#timeline" class="btn btn-secondary">查看时间线</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img id="heroCoverImage" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=600&fit=crop" alt="温馨照片">
+                <div class="cover-image-overlay">
+                    <button class="btn btn-secondary" id="changeCoverBtn" style="background: rgba(255,255,255,0.9); color: var(--primary-blue);">更换封面</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速导航卡片 -->
+        <div class="quick-nav">
+            <div class="container">
+                <h2 class="section-title">快速导航</h2>
+                <div class="nav-cards">
+                    <div class="nav-card">
+                        <div class="nav-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/>
+                                <line x1="9" y1="3" x2="9" y2="21" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>时间线</h3>
+                        <p>按时间顺序查看所有回忆</p>
+                        <a href="#timeline" class="nav-card-link">查看 →</a>
+                    </div>
+                    <div class="nav-card">
+                        <div class="nav-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 7H17V17H7V7Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M7 7L12 12L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>分类浏览</h3>
+                        <p>按标签分类查看照片</p>
+                        <a href="#category" class="nav-card-link">查看 →</a>
+                    </div>
+                    <div class="nav-card">
+                        <div class="nav-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3>上传照片</h3>
+                        <p>上传新的照片和视频</p>
+                        <a href="#upload" class="nav-card-link">上传 →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 时间线视图 -->
+    <section id="timeline" class="timeline-section">
+        <div class="container">
+            <h2 class="section-title">时间线</h2>
+            <div class="timeline-filters">
+                <button class="filter-btn active">全部</button>
+                <button class="filter-btn">照片</button>
+                <button class="filter-btn">视频</button>
+            </div>
+            <div class="timeline-layout">
+                <div class="timeline-axis" id="timelineAxis">
+                    <!-- 时间轴将由JS动态生成 -->
+                </div>
+                <div id="timelineMediaGrid">
+                    <!-- 时间线内容将由JS动态生成 -->
+                </div>
+        </div>
+    </section>
+
+    <!-- 分类视图 -->
+    <section id="category" class="category-section">
+        <div class="container">
+            <h2 class="section-title">分类浏览</h2>
+            <div class="tag-cloud">
+                <!-- 标签云将由JS动态生成 -->
+            </div>
+            <div class="selected-tag" id="selectedTag" style="display: none;">
+                <h3 id="selectedTagName">当前分类：</h3>
+            </div>
+            <div class="media-grid" id="categoryMediaGrid">
+                <!-- 分类媒体将由JS动态生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 上传页面 -->
+    <section id="upload" class="upload-section">
+        <div class="container">
+            <h2 class="section-title">上传照片</h2>
+            <div class="upload-area">
+                <div class="upload-dropzone" id="uploadDropzone">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h3>拖拽文件到这里或点击选择</h3>
+                    <p>支持 JPG、PNG、MP4 格式，最大 50MB</p>
+                    <button class="btn btn-primary" id="selectFilesBtn">选择文件</button>
+                </div>
+                <div class="file-preview-area" id="filePreviewArea" style="display: none;">
+                    <h3>已选择的文件</h3>
+                    <div class="file-preview-list" id="filePreviewList"></div>
+                </div>
+            </div>
+            <div class="tag-selector">
+                <h3>选择标签（可选）</h3>
+                <div class="tag-options" id="tagOptions">
+                    <!-- 标签将由JS动态加载 -->
+                </div>
+                <div class="add-tag-section" style="margin-top: 16px;">
+                    <button class="btn btn-secondary" id="addNewTagBtn" style="font-size: 14px; padding: 8px 16px;">+ 添加新标签</button>
+                    <div class="new-tag-input" id="newTagInput" style="display: none; margin-top: 12px;">
+                        <input type="text" id="newTagName" placeholder="输入标签名称" style="padding: 8px 12px; border: 1px solid var(--light-blue); border-radius: var(--radius-md); margin-right: 8px; width: 200px;">
+                        <input type="color" id="newTagColor" value="#4A90E2" style="width: 50px; height: 38px; border: none; border-radius: var(--radius-md); margin-right: 8px; cursor: pointer;">
+                        <button class="btn btn-primary" id="confirmNewTagBtn" style="font-size: 14px; padding: 8px 16px;">确认</button>
+                        <button class="btn btn-secondary" id="cancelNewTagBtn" style="font-size: 14px; padding: 8px 16px; margin-left: 8px;">取消</button>
+                    </div>
+                </div>
+            </div>
+            <div class="upload-actions" id="uploadActions" style="display: none; margin-top: 24px; text-align: center;">
+                <button class="btn btn-primary" id="uploadBtn">开始上传</button>
+                <button class="btn btn-secondary" id="cancelBtn" style="margin-left: 12px;">取消</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 备忘录页面 -->
+    <section id="memo" class="memo-section">
+        <div class="container">
+            <h2 class="section-title">备忘录</h2>
+            <div class="memo-actions" style="text-align: center; margin-bottom: 24px;">
+                <button class="btn btn-primary" id="createMemoBtn">+ 新建备忘录</button>
+            </div>
+            <div class="memo-grid" id="memoGrid">
+                <!-- 备忘录将由JS动态生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 备忘录编辑器模态框 -->
+    <div class="memo-modal" id="memoModal" style="display: none;">
+        <div class="modal-backdrop" id="memoModalBackdrop"></div>
+        <div class="modal-content memo-modal-content">
+            <button class="modal-close" id="memoModalClose">×</button>
+            <div class="memo-editor">
+                <h3 id="memoEditorTitle">新建备忘录</h3>
+                <input type="text" id="memoTitleInput" placeholder="备忘录标题" style="width: 100%; padding: 12px; margin-bottom: 16px; border: 1px solid var(--light-blue); border-radius: var(--radius-md); font-size: 18px;">
+                <textarea id="memoContentInput" placeholder="写下你的备忘录内容..." style="width: 100%; min-height: 300px; padding: 12px; border: 1px solid var(--light-blue); border-radius: var(--radius-md); font-size: 14px; resize: vertical; font-family: inherit;"></textarea>
+                <div class="memo-editor-actions" style="margin-top: 16px; text-align: right;">
+                    <button class="btn btn-secondary" id="memoCancelBtn">取消</button>
+                    <button class="btn btn-primary" id="memoSaveBtn" style="margin-left: 12px;">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片查看器模态框 -->
+    <div class="media-viewer-modal" id="mediaViewerModal" style="display: none;">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">×</button>
+            <div class="viewer-container">
+                <div class="viewer-media">
+                    <img id="viewerImage" src="" alt="">
+                    <video id="viewerVideo" controls style="display: none;"></video>
+                    <div class="viewer-nav">
+                        <button class="nav-btn prev-btn" id="prevBtn">‹</button>
+                        <button class="nav-btn next-btn" id="nextBtn">›</button>
+                    </div>
+                </div>
+                <div class="viewer-sidebar">
+                    <div class="viewer-info">
+                        <h3 id="viewerTitle">照片详情</h3>
+                        <div class="viewer-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">上传时间：</span>
+                                <span id="viewerDate"></span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">上传者：</span>
+                                <span id="viewerAuthor"></span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">标签：</span>
+                                <div id="viewerTags" class="viewer-tags"></div>
+                            </div>
+                        </div>
+                        <div class="viewer-tag-editor" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--light-blue);">
+                            <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--text-secondary);">添加标签</h4>
+                            <div id="viewerTagSelector" class="tag-options" style="max-height: 120px; overflow-y: auto; margin-bottom: 12px;"></div>
+                            <button class="btn btn-primary" id="addTagsToMediaBtn" style="width: 100%; font-size: 14px; padding: 8px;">添加选中标签</button>
+                        </div>
+                        <div class="viewer-actions" style="margin-top: 16px;">
+                            <button class="btn btn-danger" id="deleteMediaBtn" style="width: 100%;">删除照片</button>
+                        </div>
+                    </div>
+                    <div class="viewer-comments">
+                        <h4>评论区</h4>
+                        <div class="comments-list" id="commentsList">
+                            <!-- 评论将由JS动态加载 -->
+                        </div>
+                        <div class="comment-input" id="commentInputSection">
+                            <textarea id="commentInput" placeholder="请先登录后再评论..." disabled></textarea>
+                            <button class="btn btn-primary" id="submitCommentBtn" disabled>发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2024 肥肥美美. 用爱记录每一个瞬间 💕</p>
+        </div>
+    </footer>
+
+    <!-- 登录模态框 -->
+    <div class="auth-modal" id="authModal" style="display: none;">
+        <div class="modal-backdrop" id="authModalBackdrop"></div>
+        <div class="modal-content" style="max-width: 400px; height: auto; padding: 24px; flex-direction: column;">
+            <button class="modal-close" id="authModalClose">×</button>
+            <div id="loginForm" style="width: 100%;">
+                <h3 style="margin-bottom: 20px; color: var(--text-primary);">登录</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">请输入用户名和密码（肥肥/美美，密码：05240126）</p>
+                <input type="text" id="loginUsername" placeholder="用户名（肥肥 或 美美）" style="width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--light-blue); border-radius: var(--radius-md); box-sizing: border-box;">
+                <input type="password" id="loginPassword" placeholder="密码" style="width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--light-blue); border-radius: var(--radius-md); box-sizing: border-box;">
+                <button class="btn btn-primary" id="loginSubmitBtn" style="width: 100%;">登录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 标签重命名模态框 -->
+    <div class="tag-edit-modal" id="tagEditModal" style="display: none;">
+        <div class="modal-backdrop" id="tagEditModalBackdrop"></div>
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="modal-close" id="tagEditModalClose">×</button>
+            <h3 style="margin-bottom: 20px;">编辑标签</h3>
+            <input type="text" id="editTagName" placeholder="标签名称" style="width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--light-blue); border-radius: var(--radius-md);">
+            <input type="color" id="editTagColor" value="#4A90E2" style="width: 100%; height: 50px; border: none; border-radius: var(--radius-md); margin-bottom: 12px; cursor: pointer;">
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" id="cancelTagEditBtn" style="flex: 1;">取消</button>
+                <button class="btn btn-primary" id="saveTagEditBtn" style="flex: 1;">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
