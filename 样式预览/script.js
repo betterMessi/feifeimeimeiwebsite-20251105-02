@@ -5,10 +5,25 @@ const API_BASE_URL = (() => {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:3000/api';
     }
-    // 生产环境：优先使用环境变量，如果没有则使用默认值
-    // 注意：需要在Vercel中设置环境变量 VITE_API_BASE_URL
-    // 如果使用静态HTML，需要手动替换这里的URL
-    return 'https://your-backend-url.onrender.com/api'; // 替换为你的Render后端URL
+    
+    // 生产环境：尝试从 localStorage 读取配置的 URL
+    const savedApiUrl = localStorage.getItem('API_BASE_URL');
+    if (savedApiUrl) {
+        console.log('使用保存的 API URL:', savedApiUrl);
+        return savedApiUrl;
+    }
+    
+    // 如果没有保存的 URL，尝试从当前页面 URL 推断（如果是 Vercel 部署）
+    // 或者使用默认的 Render URL（需要替换为你的实际 URL）
+    const defaultUrl = 'https://your-backend-url.onrender.com/api'; // ⚠️ 请替换为你的实际 Render 后端 URL
+    
+    // 如果是第一次访问且 URL 是占位符，提示用户配置
+    if (defaultUrl.includes('your-backend-url')) {
+        console.warn('⚠️ 请配置后端 API URL！');
+        console.warn('请在浏览器控制台执行：localStorage.setItem("API_BASE_URL", "你的Render后端URL/api")');
+    }
+    
+    return defaultUrl;
 })();
 
 // 全局状态
@@ -254,10 +269,22 @@ async function login(username, password) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
         });
+        
+        // 检查响应状态
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('登录请求失败:', response.status, errorText);
+            throw new Error(`登录失败: ${response.status} ${response.statusText}`);
+        }
+        
         const result = await response.json();
         return result;
     } catch (error) {
         console.error('登录错误:', error);
+        // 如果是网络错误，提供更友好的提示
+        if (error.message.includes('Failed to fetch') || error.message.includes('fetch')) {
+            throw new Error('无法连接到服务器，请检查后端 API URL 是否正确配置');
+        }
         throw error;
     }
 }
