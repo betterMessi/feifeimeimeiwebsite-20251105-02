@@ -1,30 +1,56 @@
 // API配置 - 根据环境自动选择
 // 开发环境使用本地，生产环境使用环境变量或默认值
 const API_BASE_URL = (() => {
+    console.log('🔍 开始检测API地址配置...');
+    console.log('当前域名:', window.location.hostname);
+    
     // 如果是在本地开发环境
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('✅ 检测到本地环境，使用本地API');
         return 'http://localhost:3000/api';
     }
     
-    // 生产环境：尝试从 localStorage 读取配置的 URL
+    // 方法1：优先从 window 对象读取（Vercel 可以通过构建时注入）
+    if (window.API_BASE_URL) {
+        console.log('✅ 使用 window.API_BASE_URL:', window.API_BASE_URL);
+        return window.API_BASE_URL;
+    }
+    
+    // 方法2：尝试从 localStorage 读取配置的 URL
     const savedApiUrl = localStorage.getItem('API_BASE_URL');
     if (savedApiUrl) {
-        console.log('使用保存的 API URL:', savedApiUrl);
+        console.log('✅ 使用保存的 API URL:', savedApiUrl);
         return savedApiUrl;
     }
     
-    // 如果没有保存的 URL，尝试从当前页面 URL 推断（如果是 Vercel 部署）
-    // 或者使用默认的 Render URL（需要替换为你的实际 URL）
-    const defaultUrl = 'https://your-backend-url.onrender.com/api'; // ⚠️ 请替换为你的实际 Render 后端 URL
+    // 方法3：从 meta 标签读取（如果配置了）
+    const metaApiUrl = document.querySelector('meta[name="api-base-url"]');
+    console.log('🔍 检查 meta 标签:', metaApiUrl);
+    if (metaApiUrl && metaApiUrl.content) {
+        console.log('✅ 使用 meta 标签的 API URL:', metaApiUrl.content);
+        return metaApiUrl.content;
+    } else {
+        console.warn('⚠️ 未找到 meta[name="api-base-url"] 标签');
+    }
+    
+    // 方法4：使用默认的 Render URL（需要替换为你的实际 URL）
+    const defaultUrl = 'https://feifeimeimeiwebsite.onrender.com/api';
+    console.log('✅ 使用默认 API URL:', defaultUrl);
     
     // 如果是第一次访问且 URL 是占位符，提示用户配置
     if (defaultUrl.includes('your-backend-url')) {
-        console.warn('⚠️ 请配置后端 API URL！');
-        console.warn('请在浏览器控制台执行：localStorage.setItem("API_BASE_URL", "你的Render后端URL/api")');
+        console.error('❌ 后端 API URL 未配置！');
+        console.warn('请使用以下方法之一配置：');
+        console.warn('1. 在浏览器控制台执行：localStorage.setItem("API_BASE_URL", "你的Render后端URL/api")');
+        console.warn('2. 或者在 index.html 的 <head> 中添加：<meta name="api-base-url" content="你的Render后端URL/api">');
+        alert('后端API地址未配置！\n\n请在浏览器控制台执行：\nlocalStorage.setItem("API_BASE_URL", "你的Render后端URL/api")\n\n然后刷新页面。');
     }
     
     return defaultUrl;
 })();
+
+// 输出最终使用的API地址
+console.log('🎯 最终使用的 API_BASE_URL:', API_BASE_URL);
 
 // 全局状态
 let selectedFiles = [];
