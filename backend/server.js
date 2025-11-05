@@ -10,6 +10,7 @@ import { tagRouter } from './routes/tags.js';
 import { memoRouter } from './routes/memos.js';
 import { commentRouter } from './routes/comments.js';
 import { authRouter } from './routes/auth.js';
+import { mediaProxyRouter } from './routes/media-proxy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -38,6 +39,7 @@ app.use('/uploads', express.static(uploadsDir));
 // 路由
 app.use('/api/upload', uploadRouter);
 app.use('/api/media', mediaRouter);
+app.use('/api/media-proxy', mediaProxyRouter); // 图片代理（解决CORS）
 app.use('/api/tags', tagRouter);
 app.use('/api/memos', memoRouter);
 app.use('/api/comments', commentRouter);

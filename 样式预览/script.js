@@ -555,9 +555,13 @@ function createMediaCard(media) {
     
     console.log('🖼️ 图片URL:', fullUrl);
     
+    // 如果是COS URL，添加crossorigin属性以支持CORS
+    const isCOSUrl = fullUrl.includes('myqcloud.com') || fullUrl.includes('qcloud.com');
+    const crossoriginAttr = isCOSUrl ? 'crossorigin="anonymous"' : '';
+    
     card.innerHTML = `
         <div class="media-thumbnail">
-            <img src="${fullUrl}" alt="${media.originalName}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=加载失败'; console.error('图片加载失败:', '${fullUrl}');">
+            <img src="${fullUrl}" ${crossoriginAttr} alt="${media.originalName}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=加载失败'; console.error('图片加载失败:', '${fullUrl}');">
             <div class="media-type">${media.fileType === 'image' ? '照片' : '视频'}</div>
         </div>
         <div class="media-info">
@@ -603,6 +607,10 @@ function openMediaViewer(media) {
             }
         }
         console.log('🖼️ 查看器图片URL:', imageUrl);
+        // 如果是COS URL，设置crossorigin属性
+        if (imageUrl.includes('myqcloud.com') || imageUrl.includes('qcloud.com')) {
+            viewerImage.crossOrigin = 'anonymous';
+        }
         viewerImage.src = imageUrl;
         viewerImage.style.display = 'block';
         viewerVideo.style.display = 'none';
@@ -618,6 +626,10 @@ function openMediaViewer(media) {
             }
         }
         console.log('🎬 查看器视频URL:', videoUrl);
+        // 如果是COS URL，设置crossorigin属性
+        if (videoUrl.includes('myqcloud.com') || videoUrl.includes('qcloud.com')) {
+            viewerVideo.crossOrigin = 'anonymous';
+        }
         viewerVideo.src = videoUrl;
         viewerVideo.style.display = 'block';
         viewerImage.style.display = 'none';
