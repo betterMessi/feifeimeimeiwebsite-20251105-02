@@ -162,13 +162,17 @@ router.post('/', requireAuth, upload.array('files', 10), async (req, res) => {
             // 上传主文件到COS
             const cosKey = `uploads/${file.filename}`;
             await uploadToCOS(file.path, cosKey);
-            fileUrl = await getMediaUrl(cosKey); // 获取COS URL（私有读写会生成签名URL）
+            console.log(`[上传] 文件已上传到COS: ${cosKey}`);
+            // 保存COS Key而不是完整URL，这样后续可以根据配置重新生成URL
+            fileUrl = cosKey;
 
             // 上传缩略图到COS
             if (thumbnailSuccess) {
               const thumbnailKey = `uploads/thumbnails/${thumbnailFilename}`;
               await uploadToCOS(thumbnailFullPath, thumbnailKey);
-              thumbnailUrl = await getMediaUrl(thumbnailKey); // 获取COS URL
+              console.log(`[上传] 缩略图已上传到COS: ${thumbnailKey}`);
+              // 保存COS Key
+              thumbnailUrl = thumbnailKey;
 
               // 删除本地临时缩略图
               try {
@@ -203,7 +207,9 @@ router.post('/', requireAuth, upload.array('files', 10), async (req, res) => {
           try {
             const cosKey = `uploads/${file.filename}`;
             await uploadToCOS(file.path, cosKey);
-            fileUrl = await getMediaUrl(cosKey);
+            console.log(`[上传] 视频已上传到COS: ${cosKey}`);
+            // 保存COS Key而不是完整URL
+            fileUrl = cosKey;
 
             // 删除本地临时文件
             try {

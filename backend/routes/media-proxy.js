@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMediaUrl, cosConfig } from '../config/cos.js';
+import { getMediaUrl, cosConfig, extractCosKey } from '../config/cos.js';
 import { getDatabase } from '../database.js';
 
 const router = express.Router();
@@ -19,26 +19,27 @@ router.get('/image/:mediaId', async (req, res) => {
     // 获取文件路径
     let filePath = media.file_path;
     
-    // 如果是COS文件，生成签名URL并重定向
+    // 检查是否是COS文件（通过URL判断或配置判断）
     const isCOSFile = filePath && (
       filePath.includes('myqcloud.com') || 
       filePath.includes('qcloud.com') ||
-      (cosConfig.AccessType === 'private' && !filePath.startsWith('http://localhost') && !filePath.startsWith('/uploads'))
+      filePath.startsWith('uploads/') ||
+      (cosConfig.SecretId && !filePath.startsWith('http://localhost') && !filePath.startsWith('/uploads'))
     );
 
-    if (isCOSFile && cosConfig.AccessType === 'private' && cosConfig.SecretId) {
+    // 如果是COS文件，重新生成URL并重定向
+    if (isCOSFile && cosConfig.SecretId && cosConfig.Bucket) {
       try {
-        let cosKey = filePath;
-        if (filePath.includes('.com/')) {
-          cosKey = filePath.split('.com/')[1];
-        } else if (filePath.startsWith('uploads/')) {
-          cosKey = filePath;
+        const cosKey = extractCosKey(filePath);
+        if (cosKey) {
+          console.log(`[媒体代理] 重新生成URL: ${filePath} -> Key: ${cosKey}`);
+          const url = await getMediaUrl(cosKey);
+          // 重定向到COS URL
+          return res.redirect(url);
         }
-        const signedUrl = await getMediaUrl(cosKey);
-        // 重定向到COS签名URL
-        return res.redirect(signedUrl);
       } catch (error) {
-        console.error('生成COS签名URL失败:', error);
+        console.error('生成COS URL失败:', error);
+        console.error('原始filePath:', filePath);
         return res.status(500).json({ error: '无法生成图片URL' });
       }
     }

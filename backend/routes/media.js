@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
 import { getDatabase, saveDatabase } from '../database.js';
-import { cosConfig, getMediaUrl } from '../config/cos.js';
+import { cosConfig, getMediaUrl, extractCosKey } from '../config/cos.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -68,41 +68,37 @@ router.get('/', async (req, res) => {
         }
       }
 
-      // 处理文件URL（如果是COS私有读写，需要生成签名URL）
+      // 处理文件URL（COS文件需要重新生成URL以确保有效性）
       let filePath = item.file_path;
       let thumbnailPath = item.thumbnail_path;
 
-      // 检查是否是COS文件（通过URL判断）
+      // 检查是否是COS文件（通过URL判断或配置判断）
       const isCOSFile = filePath && (
         filePath.includes('myqcloud.com') || 
         filePath.includes('qcloud.com') ||
-        (cosConfig.AccessType === 'private' && !filePath.startsWith('http://localhost') && !filePath.startsWith('/uploads'))
+        filePath.startsWith('uploads/') ||
+        (cosConfig.SecretId && !filePath.startsWith('http://localhost') && !filePath.startsWith('/uploads'))
       );
 
-      if (isCOSFile && cosConfig.AccessType === 'private' && cosConfig.SecretId) {
+      // 如果是COS文件，重新生成URL（私有读写需要新签名，公共读也需要验证URL正确性）
+      if (isCOSFile && cosConfig.SecretId && cosConfig.Bucket) {
         try {
-          // 从URL中提取COS Key，或从file_path中提取
-          let cosKey = filePath;
-          if (filePath.includes('.com/')) {
-            cosKey = filePath.split('.com/')[1];
-          } else if (filePath.startsWith('uploads/')) {
-            cosKey = filePath;
+          // 提取COS Key
+          const cosKey = extractCosKey(filePath);
+          if (cosKey) {
+            console.log(`[媒体列表] 重新生成URL: ${filePath} -> Key: ${cosKey}`);
+            filePath = await getMediaUrl(cosKey);
           }
-          
-          // 生成签名URL
-          filePath = await getMediaUrl(cosKey);
 
           if (thumbnailPath) {
-            let thumbKey = thumbnailPath;
-            if (thumbnailPath.includes('.com/')) {
-              thumbKey = thumbnailPath.split('.com/')[1];
-            } else if (thumbnailPath.startsWith('uploads/')) {
-              thumbKey = thumbnailPath;
+            const thumbKey = extractCosKey(thumbnailPath);
+            if (thumbKey) {
+              thumbnailPath = await getMediaUrl(thumbKey);
             }
-            thumbnailPath = await getMediaUrl(thumbKey);
           }
         } catch (error) {
-          console.error('生成COS签名URL失败:', error);
+          console.error('生成COS URL失败:', error);
+          console.error('原始filePath:', filePath);
           // 如果生成失败，使用原始URL
         }
       }
@@ -198,37 +194,38 @@ router.get('/timeline', async (req, res) => {
         }
       }
 
-      // 处理COS URL（私有读写模式）
+      // 处理文件URL（COS文件需要重新生成URL以确保有效性）
       let filePath = item.file_path;
       let thumbnailPath = item.thumbnail_path;
 
+      // 检查是否是COS文件（通过URL判断或配置判断）
       const isCOSFile = filePath && (
         filePath.includes('myqcloud.com') || 
         filePath.includes('qcloud.com') ||
-        (cosConfig.AccessType === 'private' && !filePath.startsWith('http://localhost') && !filePath.startsWith('/uploads'))
+        filePath.startsWith('uploads/') ||
+        (cosConfig.SecretId && !filePath.startsWith('http://localhost') && !filePath.startsWith('/uploads'))
       );
 
-      if (isCOSFile && cosConfig.AccessType === 'private' && cosConfig.SecretId) {
+      // 如果是COS文件，重新生成URL（私有读写需要新签名，公共读也需要验证URL正确性）
+      if (isCOSFile && cosConfig.SecretId && cosConfig.Bucket) {
         try {
-          let cosKey = filePath;
-          if (filePath.includes('.com/')) {
-            cosKey = filePath.split('.com/')[1];
-          } else if (filePath.startsWith('uploads/')) {
-            cosKey = filePath;
+          // 提取COS Key
+          const cosKey = extractCosKey(filePath);
+          if (cosKey) {
+            console.log(`[时间线] 重新生成URL: ${filePath} -> Key: ${cosKey}`);
+            filePath = await getMediaUrl(cosKey);
           }
-          filePath = await getMediaUrl(cosKey);
 
           if (thumbnailPath) {
-            let thumbKey = thumbnailPath;
-            if (thumbnailPath.includes('.com/')) {
-              thumbKey = thumbnailPath.split('.com/')[1];
-            } else if (thumbnailPath.startsWith('uploads/')) {
-              thumbKey = thumbnailPath;
+            const thumbKey = extractCosKey(thumbnailPath);
+            if (thumbKey) {
+              thumbnailPath = await getMediaUrl(thumbKey);
             }
-            thumbnailPath = await getMediaUrl(thumbKey);
           }
         } catch (error) {
-          console.error('生成COS签名URL失败:', error);
+          console.error('生成COS URL失败:', error);
+          console.error('原始filePath:', filePath);
+          // 如果生成失败，使用原始URL
         }
       }
 
@@ -305,37 +302,38 @@ router.get('/:id', async (req, res) => {
       }
     }
 
-    // 处理COS URL（私有读写模式）
+    // 处理文件URL（COS文件需要重新生成URL以确保有效性）
     let filePath = item.file_path;
     let thumbnailPath = item.thumbnail_path;
 
+    // 检查是否是COS文件（通过URL判断或配置判断）
     const isCOSFile = filePath && (
       filePath.includes('myqcloud.com') || 
       filePath.includes('qcloud.com') ||
-      (cosConfig.AccessType === 'private' && !filePath.startsWith('http://localhost') && !filePath.startsWith('/uploads'))
+      filePath.startsWith('uploads/') ||
+      (cosConfig.SecretId && !filePath.startsWith('http://localhost') && !filePath.startsWith('/uploads'))
     );
 
-    if (isCOSFile && cosConfig.AccessType === 'private' && cosConfig.SecretId) {
+    // 如果是COS文件，重新生成URL（私有读写需要新签名，公共读也需要验证URL正确性）
+    if (isCOSFile && cosConfig.SecretId && cosConfig.Bucket) {
       try {
-        let cosKey = filePath;
-        if (filePath.includes('.com/')) {
-          cosKey = filePath.split('.com/')[1];
-        } else if (filePath.startsWith('uploads/')) {
-          cosKey = filePath;
+        // 提取COS Key
+        const cosKey = extractCosKey(filePath);
+        if (cosKey) {
+          console.log(`[媒体详情] 重新生成URL: ${filePath} -> Key: ${cosKey}`);
+          filePath = await getMediaUrl(cosKey);
         }
-        filePath = await getMediaUrl(cosKey);
 
         if (thumbnailPath) {
-          let thumbKey = thumbnailPath;
-          if (thumbnailPath.includes('.com/')) {
-            thumbKey = thumbnailPath.split('.com/')[1];
-          } else if (thumbnailPath.startsWith('uploads/')) {
-            thumbKey = thumbnailPath;
+          const thumbKey = extractCosKey(thumbnailPath);
+          if (thumbKey) {
+            thumbnailPath = await getMediaUrl(thumbKey);
           }
-          thumbnailPath = await getMediaUrl(thumbKey);
         }
       } catch (error) {
-        console.error('生成COS签名URL失败:', error);
+        console.error('生成COS URL失败:', error);
+        console.error('原始filePath:', filePath);
+        // 如果生成失败，使用原始URL
       }
     }
 

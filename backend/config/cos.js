@@ -46,14 +46,54 @@ export async function getSignedUrlSync(key, expires = 3600) {
   });
 }
 
+// 从COS URL中提取Key（支持完整URL和签名URL）
+export function extractCosKey(url) {
+  if (!url) return null;
+  
+  // 如果已经是Key格式（uploads/xxx），直接返回
+  if (url.startsWith('uploads/') && !url.includes('://')) {
+    return url;
+  }
+  
+  // 如果是完整URL，提取Key部分
+  // 格式：https://bucket.cos.region.myqcloud.com/uploads/xxx?sign=xxx
+  if (url.includes('.com/')) {
+    let key = url.split('.com/')[1];
+    // 移除查询参数（签名等）
+    if (key.includes('?')) {
+      key = key.split('?')[0];
+    }
+    // 移除锚点
+    if (key.includes('#')) {
+      key = key.split('#')[0];
+    }
+    return key;
+  }
+  
+  // 如果是以http开头但不是COS URL，返回null
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return null;
+  }
+  
+  // 其他情况，假设是Key格式
+  return url;
+}
+
 // 获取文件URL（根据配置自动选择）
 export async function getMediaUrl(key) {
+  // 如果key是URL，先提取Key
+  const cosKey = extractCosKey(key);
+  if (!cosKey) {
+    console.warn('无法从URL中提取COS Key:', key);
+    return key; // 返回原始URL
+  }
+  
   if (cosConfig.AccessType === 'private') {
     // 私有读写：生成签名URL（1小时有效期）
-    return await getSignedUrlSync(key, 3600);
+    return await getSignedUrlSync(cosKey, 3600);
   } else {
     // 公共读：直接返回公共URL
-    return getFileUrl(key);
+    return getFileUrl(cosKey);
   }
 }
 
