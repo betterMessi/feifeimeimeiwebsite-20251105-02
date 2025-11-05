@@ -536,12 +536,28 @@ function createMediaCard(media) {
     const card = document.createElement('div');
     card.className = 'media-card';
     
+    // 处理图片URL：如果已经是完整URL（http/https开头），直接使用；否则拼接后端地址
     const imageUrl = media.thumbnailPath || media.filePath;
-    const fullUrl = imageUrl.startsWith('http') ? imageUrl : `http://localhost:3000${imageUrl}`;
+    let fullUrl = imageUrl;
+    
+    // 如果URL不是以http开头，说明是相对路径，需要拼接后端地址
+    if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+        // 判断是本地开发还是生产环境
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // 本地开发：使用localhost
+            fullUrl = `http://localhost:3000${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`;
+        } else {
+            // 生产环境：使用后端API地址（去掉/api，因为这是文件路径）
+            const backendBaseUrl = API_BASE_URL.replace('/api', '');
+            fullUrl = `${backendBaseUrl}${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`;
+        }
+    }
+    
+    console.log('🖼️ 图片URL:', fullUrl);
     
     card.innerHTML = `
         <div class="media-thumbnail">
-            <img src="${fullUrl}" alt="${media.originalName}" onerror="this.src='https://via.placeholder.com/300?text=加载失败'">
+            <img src="${fullUrl}" alt="${media.originalName}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=加载失败'; console.error('图片加载失败:', '${fullUrl}');">
             <div class="media-type">${media.fileType === 'image' ? '照片' : '视频'}</div>
         </div>
         <div class="media-info">
@@ -576,12 +592,32 @@ function openMediaViewer(media) {
     if (currentMediaIndex === -1) currentMediaIndex = 0;
     
     if (media.fileType === 'image') {
-        const imageUrl = media.filePath.startsWith('http') ? media.filePath : `http://localhost:3000${media.filePath}`;
+        // 处理图片URL：如果已经是完整URL，直接使用；否则拼接后端地址
+        let imageUrl = media.filePath;
+        if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                imageUrl = `http://localhost:3000${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`;
+            } else {
+                const backendBaseUrl = API_BASE_URL.replace('/api', '');
+                imageUrl = `${backendBaseUrl}${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`;
+            }
+        }
+        console.log('🖼️ 查看器图片URL:', imageUrl);
         viewerImage.src = imageUrl;
         viewerImage.style.display = 'block';
         viewerVideo.style.display = 'none';
     } else {
-        const videoUrl = media.filePath.startsWith('http') ? media.filePath : `http://localhost:3000${media.filePath}`;
+        // 处理视频URL：如果已经是完整URL，直接使用；否则拼接后端地址
+        let videoUrl = media.filePath;
+        if (!videoUrl.startsWith('http://') && !videoUrl.startsWith('https://')) {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                videoUrl = `http://localhost:3000${videoUrl.startsWith('/') ? videoUrl : '/' + videoUrl}`;
+            } else {
+                const backendBaseUrl = API_BASE_URL.replace('/api', '');
+                videoUrl = `${backendBaseUrl}${videoUrl.startsWith('/') ? videoUrl : '/' + videoUrl}`;
+            }
+        }
+        console.log('🎬 查看器视频URL:', videoUrl);
         viewerVideo.src = videoUrl;
         viewerVideo.style.display = 'block';
         viewerImage.style.display = 'none';
